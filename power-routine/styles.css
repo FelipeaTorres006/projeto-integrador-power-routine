@@ -489,13 +489,65 @@ body {
   font-size: 48px;
 }
 
-@media (max-width: 900px) {
-  .login-split {
+@media (max-width: 768px) {
+   .login-split {
     flex-direction: column;
   }
 
-  .login-box {
+  .login-brand {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    padding: 32px 20px;
+    text-align: left;
+    width:100%;
+    max-height: 200px;
+  }
+
+  .brand-logo {
+    order: 1;
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  .brand-logo img {
+    margin-top: -20px;
+    width: 100px;
+    height: auto;
+    display: block;
+  }
+
+  .login-brand h1 {
+    order: 2;
+    margin-top: -20px;
+    font-size: 36px;
+    line-height: 0.95;
+    flex: 0 1 auto;
+  }
+
+    .login-brand p {
+    margin-top: -20px;
+    order: 3;
+    flex: 0 0 100%;
     width: 100%;
+    text-align: center;
+  }
+
+
+  .login-box {
+    margin-top: -20px;
+    width: 100%;
+  }
+  #btnGerarPlano {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    align-self: center;
+    padding: 10px 100px;
   }
 
   #view-dash {
@@ -571,16 +623,6 @@ body {
 
   .sidebar {
     width: 100%;
-  }
-
-  .info-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    width: 100%;
-    text-align: center;
   }
 
   #btnGerarPlano {
