@@ -7,7 +7,7 @@
 }
 
 :root {
-  --green: #39FF14;
+  --green: #39ff14;
   --green-dk: #28c40f;
   --bg: #0f0f0f;
   --surface: #181818;
@@ -62,9 +62,9 @@ body {
   height: 400px;
 }
 
-.brand-logo img{
-    width: 170px;
-    height: 180px;
+.brand-logo img {
+  width: 170px;
+  height: 180px;
   margin-bottom: 20px;
 }
 
@@ -100,12 +100,12 @@ body {
   color: var(--muted);
   font-size: 14px;
   margin-bottom: 32px;
-  transition: 0,5s;
+  transition: 0, 5s;
 }
 
-.login-split .btn-main:hover{
-    transform: scale(1.05);
-    color: #fff;
+.login-split .btn-main:hover {
+  transform: scale(1.05);
+  color: #fff;
 }
 
 .login-footer {
@@ -139,7 +139,6 @@ body {
   font-size: 15px;
   color: var(--green);
 }
-
 
 .form-body {
   padding: 36px 0 16px;
@@ -200,7 +199,6 @@ body {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(57, 255, 20, 0.1);
 }
-
 
 .btn-main {
   display: block;
@@ -281,8 +279,8 @@ body {
   border-top: 1px solid var(--border);
 }
 
-.sidebar-user .fa-user{
-    color: #28c40f;
+.sidebar-user .fa-user {
+  color: #28c40f;
 }
 .user-avatar {
   font-size: 24px;
@@ -304,8 +302,8 @@ body {
   margin-bottom: 4px;
 }
 
-.dash-title i{
-    color: #e3fc01;
+.dash-title i {
+  color: #e3fc01;
 }
 .dash-sub {
   color: var(--muted);
@@ -453,12 +451,12 @@ body {
   margin-bottom: 8px;
   font-size: 14px;
 }
-.info-card button{
-    display: flex;
-    justify-content: center;
-    width: 300px;
-    align-items: center;
-    margin-left: 330px;
+.info-card button {
+  display: flex;
+  justify-content: center;
+  width: 300px;
+  align-items: center;
+  margin-left: 330px;
 }
 .empty-state {
   display: flex;
@@ -471,10 +469,10 @@ body {
   text-align: center;
 }
 
-.icon-empty{
-    display: flex;
-    justify-content: center;
-    margin-top: -20px;
+.icon-empty {
+  display: flex;
+  justify-content: center;
+  margin-top: -20px;
 }
 .apple {
   color: red;
@@ -484,13 +482,12 @@ body {
   color: orange;
 }
 
-
 .empty-state span {
   font-size: 48px;
 }
 
 @media (max-width: 768px) {
-   .login-split {
+  .login-split {
     flex-direction: column;
   }
 
@@ -503,7 +500,7 @@ body {
     gap: 50px;
     padding: 32px 20px;
     text-align: left;
-    width:100%;
+    width: 100%;
     max-height: 200px;
   }
 
@@ -528,14 +525,13 @@ body {
     flex: 0 1 auto;
   }
 
-    .login-brand p {
+  .login-brand p {
     margin-top: -20px;
     order: 3;
     flex: 0 0 100%;
     width: 100%;
     text-align: center;
   }
-
 
   .login-box {
     margin-top: -20px;
@@ -578,7 +574,7 @@ body {
     gap: 12px;
     padding: 32px 20px;
     text-align: left;
-    width:100%;
+    width: 100%;
     max-height: 200px;
   }
 
@@ -610,7 +606,6 @@ body {
     width: 100%;
     text-align: center;
   }
-
 
   .login-box {
     margin-top: -20px;
