@@ -2,6 +2,7 @@ from datetime import date
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.domain.enums import TipoObjetivo
 from app.schemas.perfil import MacrosLidos
 
 
@@ -50,3 +51,30 @@ class RegistroLido(BaseModel):
     calorias_kcal: float
     observacoes: str | None
     macros: MacrosLidos
+
+
+class ComparativoDia(BaseModel):
+    """Um dia registrado, com o consumo ao lado da meta VIGENTE do usuario
+    (nao da meta que valia naquele dia -- ver docstring de
+    `diario_service.resumo`).
+    """
+
+    data: date
+    peso_kg: float
+    consumido_kcal: float
+    meta_kcal: float
+    diferenca_kcal: float
+    aderencia_percentual: float
+    macros_consumidos: MacrosLidos
+    macros_meta: MacrosLidos
+
+
+class DiarioResumo(BaseModel):
+    """Response de GET /api/diario/{usuario_id}: o comparativo meta vs.
+    consumo, do dia mais recente para o mais antigo.
+    """
+
+    usuario_id: int
+    objetivo: TipoObjetivo
+    meta_kcal: float
+    registros: list[ComparativoDia]
