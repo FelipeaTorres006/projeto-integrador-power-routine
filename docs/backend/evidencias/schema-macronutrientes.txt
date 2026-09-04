@@ -1,0 +1,21 @@
+                                       Table "public.macronutrientes"
+       Column       |       Type       | Collation | Nullable |                   Default                   
+--------------------+------------------+-----------+----------+---------------------------------------------
+ id                 | integer          |           | not null | nextval('macronutrientes_id_seq'::regclass)
+ tipo               | tipo_macro       |           | not null | 
+ objetivo_id        | integer          |           |          | 
+ registro_diario_id | integer          |           |          | 
+ proteina_g         | double precision |           | not null | 
+ carboidrato_g      | double precision |           | not null | 
+ gordura_g          | double precision |           | not null | 
+Indexes:
+    "macronutrientes_pkey" PRIMARY KEY, btree (id)
+    "ix_macro_consumo_unico_por_registro" UNIQUE, btree (registro_diario_id) WHERE tipo = 'consumo'::tipo_macro
+    "ix_macro_meta_unica_por_objetivo" UNIQUE, btree (objetivo_id) WHERE tipo = 'meta'::tipo_macro
+Check constraints:
+    "ck_macronutrientes_discriminador" CHECK (tipo = 'meta'::tipo_macro AND objetivo_id IS NOT NULL AND registro_diario_id IS NULL OR tipo = 'consumo'::tipo_macro AND registro_diario_id IS NOT NULL AND objetivo_id IS NULL)
+    "ck_macronutrientes_nao_negativo" CHECK (proteina_g >= 0::double precision AND carboidrato_g >= 0::double precision AND gordura_g >= 0::double precision)
+Foreign-key constraints:
+    "macronutrientes_objetivo_id_fkey" FOREIGN KEY (objetivo_id) REFERENCES objetivo(id) ON DELETE CASCADE
+    "macronutrientes_registro_diario_id_fkey" FOREIGN KEY (registro_diario_id) REFERENCES registro_diario(id) ON DELETE CASCADE
+
