@@ -49,6 +49,14 @@ def test_email_duplicado_retorna_409(client):
     assert resposta.status_code == 409
 
 
+def test_email_duplicado_ignora_maiusculas_minusculas(client):
+    client.post("/api/usuarios", json=USUARIO_VALIDO)
+    resposta = client.post(
+        "/api/usuarios", json={**USUARIO_VALIDO, "email": "FELIPE@exemplo.com"}
+    )
+    assert resposta.status_code == 409
+
+
 def test_rejeita_nascido_no_ano_corrente(client):
     """F2: idade == 0 nao pode passar do schema, ou calcular_tmb estoura 500 em T8."""
     resposta = client.post(

@@ -20,6 +20,13 @@ class UsuarioCriar(BaseModel):
     data_nascimento: date
     altura_cm: float = Field(gt=50, lt=250)
 
+    @field_validator("email")
+    @classmethod
+    def normalizar_email(cls, valor: str) -> str:
+        # sem isso, Foo@x.com e foo@x.com furam o UNIQUE do banco como dois
+        # cadastros distintos -- achado do self-review, corrigido aqui.
+        return valor.lower()
+
     @field_validator("data_nascimento")
     @classmethod
     def validar_data_nascimento(cls, valor: date) -> date:
