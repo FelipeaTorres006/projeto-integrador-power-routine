@@ -1,0 +1,25 @@
+                                     Table "public.objetivo"
+     Column      |       Type       | Collation | Nullable |               Default                
+-----------------+------------------+-----------+----------+--------------------------------------
+ id              | integer          |           | not null | nextval('objetivo_id_seq'::regclass)
+ usuario_id      | integer          |           | not null | 
+ tipo            | tipo_objetivo    |           | not null | 
+ nivel_atividade | nivel_atividade  |           | not null | 
+ peso_kg         | double precision |           | not null | 
+ peso_meta_kg    | double precision |           |          | 
+ tmb_kcal        | double precision |           | not null | 
+ get_kcal        | double precision |           | not null | 
+ meta_kcal       | double precision |           | not null | 
+ data_inicio     | date             |           | not null | 
+ ativo           | boolean          |           | not null | 
+Indexes:
+    "objetivo_pkey" PRIMARY KEY, btree (id)
+    "ix_objetivo_um_ativo_por_usuario" UNIQUE, btree (usuario_id) WHERE ativo
+    "ix_objetivo_usuario_id" btree (usuario_id)
+Check constraints:
+    "ck_objetivo_peso_positivo" CHECK (peso_kg > 0::double precision)
+Foreign-key constraints:
+    "objetivo_usuario_id_fkey" FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
+Referenced by:
+    TABLE "macronutrientes" CONSTRAINT "macronutrientes_objetivo_id_fkey" FOREIGN KEY (objetivo_id) REFERENCES objetivo(id) ON DELETE CASCADE
+

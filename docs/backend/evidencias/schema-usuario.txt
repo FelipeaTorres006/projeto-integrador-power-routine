@@ -1,0 +1,18 @@
+                                        Table "public.usuario"
+     Column      |          Type          | Collation | Nullable |               Default               
+-----------------+------------------------+-----------+----------+-------------------------------------
+ id              | integer                |           | not null | nextval('usuario_id_seq'::regclass)
+ nome            | character varying(120) |           | not null | 
+ email           | character varying(255) |           | not null | 
+ sexo            | sexo                   |           | not null | 
+ data_nascimento | date                   |           | not null | 
+ altura_cm       | double precision       |           | not null | 
+Indexes:
+    "usuario_pkey" PRIMARY KEY, btree (id)
+    "usuario_email_key" UNIQUE CONSTRAINT, btree (email)
+Check constraints:
+    "ck_usuario_altura_valida" CHECK (altura_cm > 0::double precision AND altura_cm < 300::double precision)
+Referenced by:
+    TABLE "objetivo" CONSTRAINT "objetivo_usuario_id_fkey" FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
+    TABLE "registro_diario" CONSTRAINT "registro_diario_usuario_id_fkey" FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
+
