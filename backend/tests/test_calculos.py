@@ -33,3 +33,13 @@ def test_tmb_feminino():
 def test_tmb_rejeita_peso_invalido():
     with pytest.raises(ValueError):
         calcular_tmb(Sexo.MASCULINO, peso_kg=0, altura_cm=180, idade=25)
+
+
+def test_tmb_rejeita_altura_invalida():
+    with pytest.raises(ValueError):
+        calcular_tmb(Sexo.MASCULINO, peso_kg=80, altura_cm=0, idade=25)
+
+
+def test_tmb_rejeita_idade_invalida():
+    with pytest.raises(ValueError):
+        calcular_tmb(Sexo.MASCULINO, peso_kg=80, altura_cm=180, idade=0)
