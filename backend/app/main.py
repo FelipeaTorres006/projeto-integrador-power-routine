@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.handlers import registrar_handlers
-from app.api.routers import perfil, usuarios
+from app.api.routers import diario, perfil, usuarios
 
 app = FastAPI(
     title="Power Routine API",
@@ -25,6 +25,7 @@ app.add_middleware(
 registrar_handlers(app)
 app.include_router(usuarios.router, prefix="/api")
 app.include_router(perfil.router, prefix="/api")
+app.include_router(diario.router, prefix="/api")
 
 
 @app.get("/api/saude", tags=["infra"])
