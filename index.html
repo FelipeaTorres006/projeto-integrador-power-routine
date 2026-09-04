@@ -1,273 +1,321 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Power Routine</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power Routine</title>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="shortcut icon" href="img/favicon.png" type="image/x-icon" />
-  </head>
-  <body>
-    <section id="view-login" class="view active">
-      <div class="login-split">
-        <div class="login-brand">
-          <div class="brand-logo">
-            <img src="img/logo-site.png" alt="Logo do aplicativo" />
-          </div>
-          <h1>Power<br />Routine</h1>
-          <p>Seu plano fitness em uma versão simples, bonita e funcional.</p>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+
+  <!-- CDNs adicionadas para RF-003, RF-004 e RF-005 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- VIEW LOGIN -->
+  <section id="view-login" class="view active">
+    <div class="login-split">
+      <div class="login-brand">
+        <div class="brand-logo">
+          <img src="logo-site.png" alt="Logo do aplicativo">
         </div>
+        <h1>Power<br>Routine</h1>
+        <p>Seu plano fitness em uma versão simples, bonita e funcional.</p>
+      </div>
 
-        <div class="login-box">
-          <h2>Entrar</h2>
+      <div class="login-box">
+        <h2>Entrar</h2>
 
-          <form id="loginForm">
+        <form id="loginForm">
+          <div class="field">
+            <label for="login-email">E-mail</label>
+            <input type="email" id="login-email" placeholder="seuemail@gmail.com" required>
+          </div>
+
+          <div class="field">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" placeholder="Digite sua senha" required>
+          </div>
+
+          <button type="submit" class="btn-main">Entrar</button>
+        </form>
+
+        <div class="register">
+          <p>Não tem uma conta?</p>
+          <span><a href="#" id="link-cadastro">Cadastre-se</a></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW CADASTRO E BIOMETRIA (RF-001 / RN-004) -->
+  <section id="view-form" class="view">
+    <div class="form-page">
+      <header class="form-header">
+        <div class="brand-sm">Power Routine</div>
+      </header>
+
+      <div class="form-body">
+        <div class="step active">
+          <span class="step-tag">RF-001 • Biometria</span>
+          <h2>Preencha seus dados</h2>
+          <p class="step-desc">Informe suas medidas para cálculo da TMB e GET via Harris-Benedict.</p>
+
+          <form id="infoForm">
             <div class="field">
-              <label for="email">E-mail</label>
-              <input type="email" id="email" placeholder="seuemail@gmail.com" />
+              <label for="nome">Nome Completo</label>
+              <input type="text" id="nome" placeholder="Digite seu nome" required>
             </div>
 
             <div class="field">
-              <label for="senha">Senha</label>
-              <input
-                type="password"
-                id="senha"
-                placeholder="Digite sua senha"
-              />
+              <label for="email">E-mail de Cadastro</label>
+              <input type="email" id="email" placeholder="seuemail@dominio.com" required>
             </div>
 
-            <button type="submit" class="btn-main">Entrar</button>
+            <div class="field">
+              <label for="sexo">Sexo Biológico</label>
+              <select id="sexo" required>
+                <option value="">Selecione</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="data_nascimento">Data de Nascimento</label>
+              <input type="date" id="data_nascimento" required>
+            </div>
+
+            <div class="field">
+              <label for="altura">Altura (cm)</label>
+              <input type="number" step="0.1" id="altura" placeholder="Ex: 175" required>
+            </div>
+
+            <div class="field">
+              <label for="peso">Peso Atual (kg)</label>
+              <input type="number" step="0.1" id="peso" placeholder="Ex: 78.5" required>
+            </div>
+
+            <div class="field">
+              <label for="nivel_atividade">Nível de Atividade Física</label>
+              <select id="nivel_atividade" required>
+                <option value="">Selecione</option>
+                <option value="sedentario">Sedentário (pouco ou nenhum exercício)</option>
+                <option value="leve">Leve (exercício 1-3 dias/semana)</option>
+                <option value="moderado">Moderado (exercício 3-5 dias/semana)</option>
+                <option value="intenso">Intenso (exercício 6-7 dias/semana)</option>
+                <option value="muito_intenso">Muito Intenso (treino 2x ao dia/pesado)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="objetivo">Objetivo Nutricional</label>
+              <select id="objetivo" required>
+                <option value="">Selecione</option>
+                <option value="emagrecer">Emagrecer</option>
+                <option value="manter">Manter Peso</option>
+                <option value="ganhar_massa">Ganhar Massa</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn-main" id="btnSalvarPerfil">Calcular Perfil e Entrar</button>
           </form>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="view-form" class="view">
-      <div class="form-page">
-        <header class="form-header">
-          <div class="brand-sm">Power Routine</div>
-        </header>
+  <!-- DASHBOARD -->
+  <section id="view-dash" class="view">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-dumbbell"></i> 
+        <span>Power Routine</span>
+      </div>
 
-        <div class="form-body">
-          <div class="step active">
-            <span class="step-tag">Passo único</span>
-            <h2>Preencha seus dados</h2>
-            <p class="step-desc">Informe seus dados.</p>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="tab-inicio">Início</button>
+        <button class="nav-item" data-tab="tab-diario">Registrar Dia</button>
+        <button class="nav-item" data-tab="tab-progresso">Progresso </button>
+        <button class="nav-item" data-tab="tab-evolucao">Evolução de Peso</button>
+        <button class="nav-item" data-tab="tab-substituicoes">Substituições</button>
+      </nav>
 
-            <form id="infoForm">
-              <div class="field">
-                <label for="nome">Nome</label>
-                <input type="text" id="nome" placeholder="Digite seu nome" />
-              </div>
+      <div class="sidebar-user">
+        <i class="fa-solid fa-user"></i>
+        <div>
+          <div class="user-name" id="sb-nome">Usuário</div>
+          <button id="btnSair" class="link small">Sair</button>
+        </div>
+      </div>
+    </aside>
 
-              <div class="field">
-                <label for="idade">Idade</label>
-                <input
-                  type="number"
-                  id="idade"
-                  placeholder="Digite sua idade"
-                />
-              </div>
+    <main class="dash-main">
+      <!-- ABA: INÍCIO (RF-003 e RF-004) -->
+      <div class="tab-content active" id="tab-inicio">
+        <div class="dash-toprow">
+          <div>
+            <h2 class="dash-title">Olá, <span id="d-nome">Usuário</span> <i class="fa-solid fa-handshake"></i></h2>
+            <p class="dash-sub">Metas calóricas calculadas com sucesso</p>
+          </div>
+          <!-- RF-004: Botão de Exportar PDF -->
+          <button id="btnExportarPdf" class="btn-pdf"><i class="fa-solid fa-file-pdf"></i> Exportar Relatório PDF</button>
+        </div>
 
-              <div class="field">
-                <label for="peso">Peso (kg)</label>
-                <input type="number" id="peso" placeholder="Digite seu peso" />
-              </div>
+        <div class="cards-row">
+          <div class="stat-card">
+            <span class="stat-label">Taxa Metabólica Basal</span>
+            <span class="stat-big" id="d-tmb">--</span>
+            <span class="stat-status">kcal/dia</span>
+          </div>
 
-              <div class="field">
-                <label for="altura">Altura (cm)</label>
-                <input
-                  type="number"
-                  id="altura"
-                  placeholder="Digite sua altura"
-                />
-              </div>
+          <div class="stat-card">
+            <span class="stat-label">Gasto Energético Total</span>
+            <span class="stat-big" id="d-get">--</span>
+            <span class="stat-status">gasto total</span>
+          </div>
 
-              <div class="field">
-                <label for="objetivo">Objetivo</label>
-                <select id="objetivo">
-                  <option value="">Selecione</option>
-                  <option value="Emagrecer">Emagrecer</option>
-                  <option value="Ganhar massa">Ganhar massa</option>
-                  <option value="Manter peso">Manter peso</option>
-                </select>
-              </div>
+          <div class="stat-card accent">
+            <span class="stat-label">Meta Diária</span>
+            <span class="stat-big" id="d-meta">--</span>
+            <span class="stat-status">kcal alvo</span>
+          </div>
+        </div>
 
-              <button type="submit" class="btn-main">Finalizar</button>
-            </form>
+        <div class="info-card">
+          <div class="info-card-header">
+            <h3>Metas de Macronutrientes Prescritas</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-lbl">Proteínas</span>
+              <span class="info-val" id="info-prot">-- g</span>
+            </div>
+            <div class="info-item">
+              <span class="info-lbl">Carboidratos</span>
+              <span class="info-val" id="info-carb">-- g</span>
+            </div>
+            <div class="info-item">
+              <span class="info-lbl">Gorduras</span>
+              <span class="info-val" id="info-gord">-- g</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RF-003: Gráficos Interativos no Painel -->
+        <div class="charts-row">
+          <div class="chart-box">
+            <h3>Distribuição de Macronutrientes (g)</h3>
+            <canvas id="chartMacros"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Consumo Recente vs Meta Diária</h3>
+            <canvas id="chartCalorias"></canvas>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- DASHBOARD -->
-    <section id="view-dash" class="view">
-      <aside class="sidebar">
-        <div class="sidebar-brand">
-          <i class="fa-solid fa-dumbbell"></i>
-          <span>Power Routine</span>
+      <!-- ABA: REGISTRO DIÁRIO -->
+      <div class="tab-content" id="tab-diario">
+        <h2 class="dash-title">Registro de Consumo Diário</h2>
+        <p class="dash-sub">Envie seu consumo para verificar conformidade com a meta.</p>
+
+        <div class="info-card">
+          <form id="diarioForm">
+            <div class="field">
+              <label for="diario-data">Data</label>
+              <input type="date" id="diario-data" required>
+            </div>
+            <div class="field">
+              <label for="diario-peso">Peso de Hoje (kg)</label>
+              <input type="number" step="0.1" id="diario-peso" placeholder="Ex: 78.2" required>
+            </div>
+            <div class="field">
+              <label for="diario-calorias">Calorias Ingeridas (kcal)</label>
+              <input type="number" step="1" id="diario-calorias" placeholder="Ex: 2100" required>
+            </div>
+            <div class="field">
+              <label for="diario-prot">Proteínas (g)</label>
+              <input type="number" step="0.1" id="diario-prot" value="0" required>
+            </div>
+            <div class="field">
+              <label for="diario-carb">Carboidratos (g)</label>
+              <input type="number" step="0.1" id="diario-carb" value="0" required>
+            </div>
+            <div class="field">
+              <label for="diario-gord">Gorduras (g)</label>
+              <input type="number" step="0.1" id="diario-gord" value="0" required>
+            </div>
+            <button type="submit" class="btn-main">Salvar Consumo do Dia</button>
+          </form>
         </div>
+      </div>
 
-        <nav class="sidebar-nav">
-          <button class="nav-item active" data-tab="tab-inicio">Início</button>
-          <button class="nav-item" data-tab="tab-plano">Plano</button>
-          <button class="nav-item" data-tab="tab-progresso">Progresso</button>
-        </nav>
+      <!-- ABA: PROGRESSO (AVALIAÇÃO ±8% - RF-002 / RN-002) -->
+      <div class="tab-content" id="tab-progresso">
+        <h2 class="dash-title">Status e Aderência </h2>
+        <p class="dash-sub">Classificação baseada na margem de tolerância de ±8% da sua meta.</p>
 
-        <div class="sidebar-user">
-          <i class="fa-solid fa-user"></i>
-          <div>
-            <div class="user-name" id="sb-nome">Usuário</div>
-            <button id="btnSair" class="link small">Sair</button>
-          </div>
-        </div>
-      </aside>
-
-      <main class="dash-main">
-        <!-- INÍCIO -->
-        <div class="tab-content active" id="tab-inicio">
-          <div class="dash-toprow">
-            <div>
-              <h2 class="dash-title">
-                Olá, <span id="d-nome">Usuário</span>
-                <i class="fa-solid fa-handshake"></i>
-              </h2>
-              <p class="dash-sub">Aqui está seu resumo</p>
-            </div>
+        <div class="cards-row">
+          <div class="stat-card">
+            <span class="stat-label">Último Consumo</span>
+            <span class="stat-big" id="p-consumo">--</span>
+            <span class="stat-status">kcal</span>
           </div>
 
-          <div class="cards-row">
-            <div class="stat-card accent">
-              <span class="stat-label">Idade</span>
-              <span class="stat-big" id="d-idade">--</span>
-              <span class="stat-status">anos</span>
-            </div>
-
-            <div class="stat-card">
-              <span class="stat-label">Peso</span>
-              <span class="stat-big" id="d-peso">--</span>
-              <span class="stat-status">kg</span>
-            </div>
-
-            <div class="stat-card">
-              <span class="stat-label">Altura</span>
-              <span class="stat-big" id="d-altura">--</span>
-              <span class="stat-status">cm</span>
-            </div>
+          <div class="stat-card">
+            <span class="stat-label">Aderência</span>
+            <span class="stat-big" id="p-aderencia">--%</span>
+            <span class="stat-status">consumo / meta</span>
           </div>
 
-          <div class="info-card">
-            <div class="info-card-header">
-              <h3>Informações pessoais</h3>
-            </div>
-
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="info-lbl">Nome</span>
-                <span class="info-val" id="info-nome">--</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-lbl">Objetivo</span>
-                <span class="info-val" id="info-objetivo">--</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-lbl">IMC</span>
-                <span class="info-val" id="info-imc">--</span>
-              </div>
-            </div>
+          <div class="stat-card" id="card-status-ia">
+            <span class="stat-label">Status da Meta</span>
+            <span class="stat-big" id="p-status">--</span>
+            <span class="stat-status" id="p-status-desc">tolerância ±8%</span>
           </div>
         </div>
 
-        <!-- PLANO -->
-        <div class="tab-content" id="tab-plano">
-          <h2 class="dash-title">Plano alimentar</h2>
-          <p class="dash-sub">Clique no botão para gerar um plano alimentar.</p>
-
-          <div class="info-card">
-            <button id="btnGerarPlano" class="btn-main">Gerar plano</button>
-
-            <div class="plano-output" id="plano-output">
-              <div class="empty-state">
-                <div class="icon-empty">
-                  <i class="fa-solid fa-apple-whole apple"></i>
-                  <i class="fa-solid fa-carrot carrot"></i>
-                </div>
-                <p>Seu plano alimentar:</p>
-              </div>
+        <div class="info-card">
+          <div class="info-card-header">
+            <h3>Histórico de Registros Avaliados</h3>
+          </div>
+          <div class="plano-output" id="historico-output">
+            <div class="empty-state">
+              <p>Nenhum registro encontrado. Registre seu primeiro consumo diário.</p>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- PROGRESSO -->
-        <div class="tab-content" id="tab-progresso">
-          <h2 class="dash-title">Progresso</h2>
-          <p class="dash-sub">Veja um resumo dos seus dados.</p>
-
-          <div class="cards-row">
-            <div class="stat-card accent">
-              <span class="stat-label">IMC</span>
-              <span class="stat-big" id="p-imc">--</span>
-              <span class="stat-status">resultado</span>
-            </div>
-
-            <div class="stat-card">
-              <span class="stat-label">Objetivo</span>
-              <span class="stat-big" id="p-objetivo">--</span>
-              <span class="stat-status">meta atual</span>
-            </div>
-
-            <div class="stat-card">
-              <span class="stat-label">Status</span>
-              <span class="stat-big" id="p-status">--</span>
-              <span class="stat-status">condição</span>
-            </div>
-          </div>
-
-          <div class="info-card">
-            <div class="info-card-header">
-              <h3>Resumo</h3>
-            </div>
-
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="info-lbl">Peso</span>
-                <span class="info-val" id="p-peso">--</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-lbl">Altura</span>
-                <span class="info-val" id="p-altura">--</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-lbl">Idade</span>
-                <span class="info-val" id="p-idade">--</span>
-              </div>
-            </div>
-          </div>
+      <!-- ABA: EVOLUÇÃO DE PESO (RF-005) -->
+      <div class="tab-content" id="tab-evolucao">
+        <h2 class="dash-title">Evolução Temporal </h2>
+        <p class="dash-sub">Acompanhe a curva de variação do peso ao longo dos dias registrados.</p>
+        <div class="chart-box full">
+          <h3>Histórico de Peso (kg)</h3>
+          <canvas id="chartPeso"></canvas>
         </div>
-      </main>
-    </section>
+      </div>
 
-    <div id="toast" class="toast"></div>
+      <!-- ABA: PLANO E SUBSTITUIÇÕES (RF-005) -->
+      <div class="tab-content" id="tab-substituicoes">
+        <h2 class="dash-title">Plano Alimentar e Substituições </h2>
+        <p class="dash-sub">Alternativas saudáveis e opções low carb sugeridas para cada refeição.</p>
+        <div id="substituicoes-output" class="substituicoes-grid"></div>
+      </div>
+    </main>
+  </section>
 
-    <script src="app.js"></script>
-  </body>
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
 </html>
