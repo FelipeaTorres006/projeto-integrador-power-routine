@@ -1,10 +1,13 @@
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 import app.models  # noqa: F401 -- registra todas as tabelas no metadata
 from app.core.config import settings
 from app.db.base import Base
+from app.db.session import get_db
+from app.main import app as fastapi_app
 
 
 @pytest.fixture(scope="session")
@@ -42,3 +45,21 @@ def db(engine, limpar_banco):
     sessao = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)()
     yield sessao
     sessao.close()
+
+
+@pytest.fixture
+def client(db):
+    """Cliente HTTP que compartilha a sessao do teste, para o TRUNCATE alcancar tudo."""
+
+    def _get_db():
+        try:
+            yield db
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+    fastapi_app.dependency_overrides[get_db] = _get_db
+    with TestClient(fastapi_app) as c:
+        yield c
+    fastapi_app.dependency_overrides.clear()
