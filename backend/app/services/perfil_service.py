@@ -11,6 +11,16 @@ from app.services import usuario_service
 from app.services.calculos import calcular_perfil
 
 
+def _objetivo_ativo_ou_none(db: Session, usuario_id: int) -> Objetivo | None:
+    """Query unica reusada por `objetivo_ativo` (que trata ausencia como erro) e
+    por `calcular_e_salvar` (para quem ausencia e o caso normal: primeiro
+    calculo do usuario). Evita duas copias do mesmo filtro divergirem.
+    """
+    return db.scalar(
+        select(Objetivo).where(Objetivo.usuario_id == usuario_id, Objetivo.ativo.is_(True))
+    )
+
+
 def objetivo_ativo(db: Session, usuario_id: int) -> Objetivo:
     """O unico Objetivo com ativo=True do usuario -- a meta vigente que T10 le.
 
@@ -18,9 +28,7 @@ def objetivo_ativo(db: Session, usuario_id: int) -> Objetivo:
     maximo um. Nao recalcula nada: tmb/get/meta sao o snapshot prescrito no
     momento do calculo (regra de T6), nunca um numero derivado na leitura.
     """
-    objetivo = db.scalar(
-        select(Objetivo).where(Objetivo.usuario_id == usuario_id, Objetivo.ativo.is_(True))
-    )
+    objetivo = _objetivo_ativo_ou_none(db, usuario_id)
     if objetivo is None:
         raise RecursoNaoEncontradoError(
             f"usuario {usuario_id} nao possui objetivo ativo; chame POST /api/perfil/calcular"
@@ -58,9 +66,7 @@ def calcular_e_salvar(
         hoje=hoje_efetivo,
     )
 
-    anterior = db.scalar(
-        select(Objetivo).where(Objetivo.usuario_id == dados.usuario_id, Objetivo.ativo.is_(True))
-    )
+    anterior = _objetivo_ativo_ou_none(db, dados.usuario_id)
     if anterior is not None:
         anterior.ativo = False
         db.flush()
