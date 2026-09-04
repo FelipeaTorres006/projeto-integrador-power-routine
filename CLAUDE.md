@@ -73,3 +73,24 @@ user feedback channel (form validation errors and success messages) — a 2s `.s
 
 Font Awesome and the Outfit font are loaded from CDNs in `<head>`; icons are `<i class="fa-solid …">`.
 Local images live in `img/`. The page degrades but still works offline (icons and font just fall back).
+
+## Backend (`backend/`)
+
+API FastAPI + SQLAlchemy + PostgreSQL. Ver `backend/README.md` para subir o ambiente
+(inclui os comandos do container Docker — Postgres não é assumido como instalado
+nativamente).
+
+- `app/services/calculos.py` — regras de negócio **puras** (Harris-Benedict, GET, meta,
+  macros). Não importa FastAPI nem SQLAlchemy; é testável sem banco. Nunca coloque acesso
+  a dados aqui.
+- Uma transação por requisição: `get_db` faz o commit, os services só fazem `flush()` —
+  sem isso, uma violação de constraint só aparece no commit do `get_db`, com a resposta
+  já iniciada, e vira 500 em vez de 404/409/422.
+- Erros de domínio (`app/domain/erros.py`) viram HTTP em `app/api/handlers.py` —
+  routers não têm `try/except`.
+- `pytest` e `alembic` só rodam de **dentro** de `backend/`: `pytest.ini` fixa
+  `pythonpath = .` e as configurações (`app/core/config.py`) resolvem `.env` pelo
+  diretório de trabalho. Rodar da raiz do repositório não encontra nenhum dos dois.
+- Rodar: `cd backend && .venv/bin/python -m pytest -v`. Um único teste:
+  `cd backend && .venv/bin/python -m pytest tests/test_calculos.py::test_tmb_masculino -v`.
+- Documentação acadêmica das seções 18 e 22.2 em `docs/backend/`.

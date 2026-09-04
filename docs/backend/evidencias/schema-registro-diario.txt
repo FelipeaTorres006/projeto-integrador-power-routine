@@ -1,0 +1,21 @@
+                                       Table "public.registro_diario"
+    Column     |          Type          | Collation | Nullable |                   Default                   
+---------------+------------------------+-----------+----------+---------------------------------------------
+ id            | integer                |           | not null | nextval('registro_diario_id_seq'::regclass)
+ usuario_id    | integer                |           | not null | 
+ data          | date                   |           | not null | 
+ peso_kg       | double precision       |           | not null | 
+ calorias_kcal | double precision       |           | not null | 
+ observacoes   | character varying(500) |           |          | 
+Indexes:
+    "registro_diario_pkey" PRIMARY KEY, btree (id)
+    "ix_registro_diario_usuario_id" btree (usuario_id)
+    "uq_registro_diario_usuario_data" UNIQUE CONSTRAINT, btree (usuario_id, data)
+Check constraints:
+    "ck_registro_calorias_nao_negativas" CHECK (calorias_kcal >= 0::double precision)
+    "ck_registro_peso_positivo" CHECK (peso_kg > 0::double precision)
+Foreign-key constraints:
+    "registro_diario_usuario_id_fkey" FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
+Referenced by:
+    TABLE "macronutrientes" CONSTRAINT "macronutrientes_registro_diario_id_fkey" FOREIGN KEY (registro_diario_id) REFERENCES registro_diario(id) ON DELETE CASCADE
+
