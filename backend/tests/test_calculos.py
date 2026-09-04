@@ -2,8 +2,13 @@ from datetime import date
 
 import pytest
 
-from app.domain.enums import Sexo
-from app.services.calculos import calcular_idade, calcular_tmb
+from app.domain.enums import NivelAtividade, Sexo, TipoObjetivo
+from app.services.calculos import (
+    calcular_get,
+    calcular_idade,
+    calcular_meta_calorica,
+    calcular_tmb,
+)
 
 
 def test_calcular_idade_antes_do_aniversario():
@@ -43,3 +48,33 @@ def test_tmb_rejeita_altura_invalida():
 def test_tmb_rejeita_idade_invalida():
     with pytest.raises(ValueError):
         calcular_tmb(Sexo.MASCULINO, peso_kg=80, altura_cm=180, idade=0)
+
+
+def test_get_sedentario():
+    get = calcular_get(1882.02, NivelAtividade.SEDENTARIO)
+    assert get == pytest.approx(2258.42, abs=0.01)
+
+
+def test_get_moderado():
+    get = calcular_get(1882.02, NivelAtividade.MODERADO)
+    assert get == pytest.approx(2917.13, abs=0.01)
+
+
+def test_get_muito_intenso():
+    get = calcular_get(1882.02, NivelAtividade.MUITO_INTENSO)
+    assert get == pytest.approx(3575.84, abs=0.01)
+
+
+def test_meta_calorica_emagrecer():
+    meta = calcular_meta_calorica(2917.13, TipoObjetivo.EMAGRECER)
+    assert meta == pytest.approx(2333.70, abs=0.01)
+
+
+def test_meta_calorica_manter():
+    meta = calcular_meta_calorica(2917.13, TipoObjetivo.MANTER)
+    assert meta == pytest.approx(2917.13, abs=0.01)
+
+
+def test_meta_calorica_ganhar_massa():
+    meta = calcular_meta_calorica(2917.13, TipoObjetivo.GANHAR_MASSA)
+    assert meta == pytest.approx(3354.70, abs=0.01)
