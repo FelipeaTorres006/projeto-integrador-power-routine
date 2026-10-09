@@ -41,6 +41,7 @@ backend/
 │  ├─ test_calculos.py             # unitários, sem banco
 │  ├─ test_handlers.py
 │  ├─ test_config.py
+│  ├─ test_cors.py               # CORS do app real, sem banco
 │  ├─ test_models_usuario.py
 │  ├─ test_models_relacional.py
 │  ├─ test_usuarios_api.py
@@ -223,9 +224,144 @@ ou de recusar com 409. É substituição total do dia, não *merge* — um campo
 omitido no corpo da segunda chamada volta ao valor padrão (`observacoes` viraria
 `None`), então o cliente precisa sempre enviar o dia inteiro.
 
+## Configuração de CORS
+
+### O problema: duas origens diferentes
+
+O frontend do Power Routine é servido pelo GitHub Pages, em
+`https://felipeatorres006.github.io/projeto-integrador-power-routine/`. A API roda
+no Render, em `https://power-routine-api-wcq1.onrender.com`. Para o navegador,
+são **origens diferentes**, porque uma origem é a combinação de esquema, domínio e
+porta, e os domínios aqui não coincidem. O caminho
+`/projeto-integrador-power-routine/` não faz parte da origem.
+
+Pela **política de mesma origem** (*same-origin policy*), o navegador não entrega
+ao JavaScript de uma página a resposta de uma requisição feita para outra origem,
+a menos que o servidor diga explicitamente que confia nela. Esse mecanismo de
+autorização é o **CORS** (*Cross-Origin Resource Sharing*). Sem ele, todas as
+chamadas `fetch` do `app.js` falham com erro de CORS no console, mesmo com a API
+respondendo normalmente.
+
+O fluxo tem duas etapas:
+
+1. **Preflight.** Antes de um `POST` com `Content-Type: application/json`, o
+   navegador envia sozinho um `OPTIONS` com os cabeçalhos `Origin`,
+   `Access-Control-Request-Method` e `Access-Control-Request-Headers`,
+   perguntando se aquela origem pode fazer aquele tipo de requisição.
+2. **Requisição real.** Só acontece se a resposta do preflight trouxer
+   `Access-Control-Allow-Origin` com a origem da página. A resposta da requisição
+   real também precisa trazer esse cabeçalho para o JavaScript conseguir lê-la.
+
+### A configuração no FastAPI
+
+Na primeira versão, a API aceitava qualquer origem (`allow_origins=["*"]`). Nesta
+fase, com a API publicada na internet, a autorização passou a ser uma **lista
+explícita**: só o GitHub Pages e o ambiente de desenvolvimento local.
+
+`app/main.py`:
+
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_origin_regex=settings.cors_origin_regex,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+)
+```
+
+`app/core/config.py`:
+
+```python
+cors_origins: list[str] = ["https://felipeatorres006.github.io"]
+cors_origin_regex: str = r"^http://(localhost|127\.0\.0\.1)(:\d+)?$"
+```
+
+Cada escolha, e por quê:
+
+| Parâmetro | Valor | Motivo |
+|---|---|---|
+| `allow_origins` | só o GitHub Pages | Uma página em qualquer outro domínio não consegue ler as respostas da API pelo navegador. Configurável pela variável de ambiente `CORS_ORIGINS`, sem alterar código. |
+| `allow_origin_regex` | `localhost` e `127.0.0.1`, em qualquer porta | Desenvolvimento local (`python3 -m http.server`, Live Server…) sem precisar listar cada porta. A expressão é ancorada (`^…$`), então `http://localhost.site-malicioso.com` **não** casa. |
+| `allow_methods` | `GET`, `POST` | São os únicos métodos que a API expõe. Um preflight pedindo `DELETE` é recusado com 400. |
+| `allow_headers` | `Content-Type` | O único cabeçalho não simples que o frontend envia (`application/json`). |
+| `allow_credentials` | omitido (falso) | A API não tem cookie nem autenticação, então o navegador não precisa enviar credenciais entre origens. |
+
+Uma página aberta direto do disco (`file://`) tem origem `null` e é recusada.
+Para rodar o frontend localmente, ele precisa ser servido por HTTP.
+
+O CORS é uma proteção **do navegador**. Ele impede que outro site use o navegador
+do visitante para ler a API, mas não impede chamadas feitas fora do navegador
+(`curl`, Swagger, scripts). Essa diferença é esperada: a API é pública por decisão
+de escopo (sem autenticação), e o CORS limita *quais páginas web* podem consumi-la.
+
+### A prova: `tests/test_cors.py`
+
+O teste importa o `app` real de `app.main`, com o mesmo middleware que vai para
+produção, e não abre conexão com banco:
+
+| Caso | Resultado esperado |
+|---|---|
+| Preflight de `https://felipeatorres006.github.io` | 200 e `access-control-allow-origin` ecoando a origem |
+| Preflight de `http://localhost:5500`, `http://127.0.0.1:8080`, `http://localhost` | aceito |
+| Preflight de `https://site-malicioso.com` | sem `access-control-allow-origin` |
+| Preflight de `https://felipeatorres006.github.io.site-malicioso.com` | sem o cabeçalho (domínio que só *parece* o Pages) |
+| Preflight de `http://localhost.site-malicioso.com` | sem o cabeçalho |
+| Preflight de `null` (`file://`) | sem o cabeçalho |
+| Preflight pedindo `DELETE` | 400 |
+| `GET /api/saude` com `Origin` do Pages | 200 com o cabeçalho |
+| Qualquer preflight | sem `access-control-allow-credentials` |
+
+A mesma verificação foi repetida contra a API publicada:
+
+```
+$ curl -i -X OPTIONS https://power-routine-api-wcq1.onrender.com/api/usuarios \
+    -H 'Origin: https://felipeatorres006.github.io' \
+    -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type'
+HTTP/2 200
+access-control-allow-methods: GET, POST
+access-control-allow-origin: https://felipeatorres006.github.io
+
+$ curl -i -X OPTIONS https://power-routine-api-wcq1.onrender.com/api/usuarios \
+    -H 'Origin: https://exemplo.com' -H 'Access-Control-Request-Method: POST'
+HTTP/2 400
+(sem access-control-allow-origin)
+```
+
+A suíte completa, com `test_cors.py` incluído, mede **100 passed** nesta fase.
+
+## Publicação da API
+
+| Camada | Onde | Plano |
+|---|---|---|
+| Frontend | GitHub Pages, branch `main` | gratuito |
+| API | Render, Web Service `power-routine-api`, definido em `render.yaml` na raiz do repositório | gratuito |
+| Banco | Neon, PostgreSQL 18, região AWS São Paulo | gratuito |
+
+Três ajustes no backend tornaram esse arranjo possível:
+
+- **A URL do Neon é aceita como vem.** O painel entrega `postgresql://…?sslmode=require`.
+  Um validador em `Settings` troca o prefixo por `postgresql+psycopg://`, o driver
+  instalado. Sem isso, o SQLAlchemy procuraria o `psycopg2`. Coberto em
+  `tests/test_config.py`.
+- **`pool_pre_ping=True` no engine** (`app/db/session.py`). O Neon suspende o
+  banco após 5 minutos parado e encerra as conexões abertas. O ping descarta a
+  conexão morta antes de usá-la. Sem ele, a primeira requisição depois de uma
+  pausa responderia 500.
+- **Migration no start do serviço.** O `startCommand` do Render é
+  `alembic upgrade head && uvicorn …`. O comando de *pre-deploy* do Render é
+  recurso pago, e `upgrade head` é idempotente: quando não há migration nova,
+  não faz nada.
+
+A connection string do banco fica só no painel do Render (`DATABASE_URL`) e no
+`.env` local, que é ignorado pelo git. Nenhuma credencial está no repositório.
+
+Limitação conhecida do plano gratuito: o serviço do Render "dorme" após 15 minutos
+sem requisições, e a primeira chamada depois disso leva cerca de 1 minuto.
+
 ## Evidências
 
-Sete figuras. As quatro primeiras são **capturas de tela reais**, tiradas
+Nove figuras. As quatro primeiras são **capturas de tela reais**, tiradas
 navegando o Swagger UI em `http://127.0.0.1:8000/docs` com a API rodando contra o
 banco `power_routine`. As três últimas são **imagens renderizadas** — o conteúdo é
 real (a saída literal de `pytest -v` e os dois arquivos-fonte tal como estão no
@@ -272,3 +408,17 @@ terceira decisão de modelagem da seção 18.1.
 Os quatro dumps de schema (`schema-usuario.txt`, `schema-objetivo.txt`,
 `schema-registro-diario.txt`, `schema-macronutrientes.txt`), saída literal de
 `psql \d`, também estão em `docs/backend/evidencias/` e são citados na seção 18.1.
+
+**Figuras 8 e 9 — capturas reais, com marcações.** Painel *Network* do Chrome
+DevTools, a mesma interface aberta pelo F12, conectado ao frontend publicado no
+GitHub Pages enquanto o fluxo cadastro → perfil → registro diário era executado.
+As requisições, os status e o JSON são os do tráfego real com a API no Render. Os
+retângulos e rótulos vermelhos foram desenhados depois, sobre a captura.
+
+- `network-diario-200-headers.png` (Figura 8): aba *Headers* de
+  `GET https://power-routine-api-wcq1.onrender.com/api/diario/3`, com
+  **Status Code 200 OK**, `Access-Control-Allow-Origin: https://felipeatorres006.github.io`
+  (o CORS da seção acima em funcionamento) e `Content-Type: application/json`.
+- `network-diario-200-json.png` (Figura 9): aba *Preview* da mesma requisição,
+  com o JSON do comparativo diário. Cada dia traz `consumido_kcal`, `meta_kcal`,
+  `diferenca_kcal`, `aderencia_percentual` e os macros consumidos e da meta.
