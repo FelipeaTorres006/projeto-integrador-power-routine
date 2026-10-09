@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy.engine import make_url
 
 from app.core.config import Settings, settings
 
@@ -9,7 +10,8 @@ def test_settings_carrega_database_url():
 
 
 def test_settings_carrega_test_database_url():
-    assert settings.test_database_url.endswith("_test")
+    # O nome do database, nao o fim da string: a URL do Neon termina em ?sslmode=...
+    assert make_url(settings.test_database_url).database.endswith("_test")
 
 
 @pytest.mark.parametrize(
