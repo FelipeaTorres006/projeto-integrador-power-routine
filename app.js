@@ -1,7 +1,7 @@
 // RNF-003: Compatibilidade dinâmica entre ambiente local e deploy no GitHub Pages[cite: 1]
 const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
   ? "http://localhost:8000/api"
-  : "https://seu-backend-producao.onrender.com/api";
+  : "https://power-routine-api-wcq1.onrender.com/api";
 
 const state = {
   usuario_id: null,
