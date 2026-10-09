@@ -73,7 +73,7 @@ nativamente).
   diretório de trabalho. Rodar da raiz do repositório não encontra nenhum dos dois.
 - Rodar: `cd backend && .venv/bin/python -m pytest -v`. Um único teste:
   `cd backend && .venv/bin/python -m pytest tests/test_calculos.py::test_tmb_masculino -v`.
-- Documentação acadêmica das seções 18 e 22.2 em `docs/backend/`.
+- Documentação acadêmica das seções 18, 22.2 e 22.3 em `docs/backend/` (evidências em `docs/backend/evidencias/`).
 - CORS (`app/main.py`, configurado em `app/core/config.py`): só a origem do GitHub Pages
   e `localhost`/`127.0.0.1` em qualquer porta; provado em `tests/test_cors.py`. Uma
   origem nova de frontend precisa entrar em `cors_origins` (ou `CORS_ORIGINS` no Render).
