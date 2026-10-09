@@ -1,0 +1,18 @@
+# Blueprint do Render: so a API. O frontend continua no GitHub Pages e o banco
+# no Neon (o Postgres gratuito do Render expira em 30 dias).
+services:
+  - type: web
+    name: power-routine-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # Pre-deploy command e recurso pago; a migration roda no start (idempotente).
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/saude
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      # Connection string do Neon, digitada no painel do Render -- nunca no git.
+      - key: DATABASE_URL
+        sync: false

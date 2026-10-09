@@ -20,7 +20,9 @@ import app.models  # noqa: E402,F401 -- registra todas as tabelas no metadata
 from app.core.config import settings  # noqa: E402
 from app.db.base import Base  # noqa: E402
 
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# "%" escapado: o alembic.ini e lido por ConfigParser, que interpreta "%" (comum
+# em senha URL-encoded) como interpolacao.
+config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

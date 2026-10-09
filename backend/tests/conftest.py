@@ -18,6 +18,8 @@ def engine():
     ja deixou tabelas com FK para `usuario` no mesmo banco fisico. Por isso o
     schema inteiro e reiniciado, em vez de drop_all/create_all seletivo.
     """
+    if settings.test_database_url is None:
+        pytest.fail("TEST_DATABASE_URL nao definida no .env -- os testes de banco precisam dela")
     eng = create_engine(settings.test_database_url, future=True)
     with eng.begin() as conn:
         conn.execute(text("DROP SCHEMA public CASCADE"))

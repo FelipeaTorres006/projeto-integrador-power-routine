@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.handlers import registrar_handlers
 from app.api.routers import diario, perfil, usuarios
+from app.core.config import settings
 
 app = FastAPI(
     title="Power Routine API",
@@ -13,13 +14,16 @@ app = FastAPI(
     ),
 )
 
-# O frontend estatico e servido de outra origem (file:// ou http.server). Escopo
-# academico sem autenticacao nem cookie, entao nao ha credencial a proteger.
+# O frontend (GitHub Pages) e a API (Render) moram em origens diferentes, entao o
+# navegador so entrega a resposta ao JavaScript se a API autorizar a origem.
+# Lista explicita em vez de "*": so o Pages e o localhost de desenvolvimento.
+# Sem allow_credentials: a API nao tem cookie nem autenticacao.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.cors_origins,
+    allow_origin_regex=settings.cors_origin_regex,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 registrar_handlers(app)
