@@ -4,24 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Power Routine — "projeto integrador" (academic capstone). A static, single-page fitness demo app.
-No build step, no package manager, no dependencies to install, no test suite. Everything is
-plain HTML/CSS/vanilla JS served straight from the repo root.
+Power Routine — "projeto integrador" (academic capstone). A single-page nutrition app: static
+frontend at the repo root (no build step, no package manager) talking to a FastAPI backend in
+`backend/`. Deployed as: frontend on GitHub Pages (`main`, repo root), API on Render
+(`render.yaml`, free plan), Postgres on Neon (free plan).
 
 UI text, identifiers, and comments are in **Brazilian Portuguese** (`<html lang="pt-BR">`). Keep new
 user-facing strings and DOM ids in Portuguese to match.
 
-## Running it
+## Running the frontend
 
 ```bash
-xdg-open index.html                 # open directly; file:// works, there are no module imports
-python3 -m http.server 8000         # or serve the root and hit http://localhost:8000
+python3 -m http.server 5500         # then http://localhost:5500 — needs the API on :8000
 ```
 
-There is nothing to build, lint, or test. Verify changes by loading the page and walking the flow:
-login → form → dashboard tabs → "Gerar plano".
+`file://` no longer works end to end: its `Origin` is `null`, which the API's CORS rejects. Verify
+changes by walking the flow: login → cadastro/perfil → dashboard → Diário → Progresso.
 
-## Architecture
+## Frontend architecture
 
 Three files at the repo root:
 
@@ -29,50 +29,30 @@ Three files at the repo root:
   elements (`#view-login`, `#view-form`, `#view-dash`). Nothing is ever created or removed.
 - `app.js` — the entire application. Loaded with a plain `<script>` at the end of `<body>`; listeners
   are registered at the top level, so every element it queries must already exist in `index.html`.
-- `styles.css` — dark theme driven by CSS custom properties on `:root` (`--green` accent, `--bg`,
-  `--surface`, `--border`, `--text`, `--muted`, `--r` radius, `--t` transition). Use these variables
-  rather than hardcoding colors.
+- `styles.css` — dark theme driven by CSS custom properties on `:root`. Use the variables rather
+  than hardcoding colors.
 
 ### Navigation is CSS-class visibility, not routing
 
-Two independent toggle mechanisms, both by adding/removing `.active`:
-
 1. **Screens** — `goTo(viewId)` strips `.active` from every `.view` and sets it on the target.
-   `.view { display: none }` / `.view.active { display: … }` in `styles.css` does the showing.
-2. **Dashboard tabs** — `.nav-item[data-tab]` buttons in the sidebar map to `.tab-content` panels by
-   id; the click handler mirrors the same strip-then-set pattern.
+2. **Dashboard tabs** — `.nav-item[data-tab]` buttons map to `.tab-content` panels by id; the click
+   handler mirrors the same strip-then-set pattern and (re)loads data for Início/Progresso/Evolução.
 
-Adding a screen or tab means: add the markup with the right class, add the CSS rule, and wire the
-id — there is no route table.
+### Talking to the API
 
-### State
+`API_URL` (top of `app.js`) is `http://localhost:8000/api` when the page is served from
+localhost/127.0.0.1, otherwise the Render URL. The flow is: `#infoForm` submit → `POST /usuarios` →
+`POST /perfil/calcular` → dashboard; `#diarioForm` → `POST /diario/registro` → `GET /diario/{id}`.
+The `<option value>`s of `#sexo`, `#nivel_atividade` and `#objetivo` must match the backend enums
+(`backend/app/domain/enums.py`) exactly. `extrairErro` turns FastAPI error bodies (422 lists, 404/409
+strings) into the message for `showToast`, the only user feedback channel.
 
-A single module-level `state` object (`nome`, `idade`, `peso`, `altura`, `objetivo`) holds everything.
-It is populated only on `#infoForm` submit and is **in-memory only** — no `localStorage`, no backend,
-so a refresh resets the app to the login screen.
+`state` is in-memory only (no `localStorage`): a refresh drops `usuario_id`, though the data stays
+in the database. Login (`#loginForm`) is cosmetic — there is no authentication anywhere.
 
-Login (`#loginForm`) is cosmetic: it checks that email and password are non-empty and then calls
-`goTo("view-form")`. There is no authentication, no user record, and email/senha never reach `state`.
-
-### Rendering
-
-`preencherDashboard()` is the one render function: it recomputes IMC and pushes `state` into ~12
-hardcoded element ids via `innerText`. The same values are duplicated across the "Início" and
-"Progresso" tabs under different id prefixes (`d-*` / `info-*` on Início, `p-*` on Progresso), so a
-new field usually needs to be written in both places here.
-
-`gerarPlano()` picks a fixed meal plan from a three-branch `if` on `state.objetivo` (`"Emagrecer"`,
-`"Ganhar massa"`, else) and replaces `#plano-output` with a template literal. These strings must match
-the `<option value>`s of `#objetivo` in `index.html` exactly.
-
-Helpers: `calcularIMC(peso, altura)` expects **altura in cm** and returns a 1-decimal string;
-`classificarIMC` buckets it into Baixo / Normal / Sobrepeso / Alto. `showToast(msg)` is the only
-user feedback channel (form validation errors and success messages) — a 2s `.show` class on `#toast`.
-
-### External assets
-
-Font Awesome and the Outfit font are loaded from CDNs in `<head>`; icons are `<i class="fa-solid …">`.
-Local images live in `img/`. The page degrades but still works offline (icons and font just fall back).
+`classificarMargem8Pct` classifies a day as inside/below/above the goal with a ±8% band, computed
+client-side. Charts use Chart.js, the PDF report uses jsPDF; both and Font Awesome/Outfit come from
+CDNs in `<head>`. Local images live in `img/`.
 
 ## Backend (`backend/`)
 
@@ -94,3 +74,9 @@ nativamente).
 - Rodar: `cd backend && .venv/bin/python -m pytest -v`. Um único teste:
   `cd backend && .venv/bin/python -m pytest tests/test_calculos.py::test_tmb_masculino -v`.
 - Documentação acadêmica das seções 18 e 22.2 em `docs/backend/`.
+- CORS (`app/main.py`, configurado em `app/core/config.py`): só a origem do GitHub Pages
+  e `localhost`/`127.0.0.1` em qualquer porta; provado em `tests/test_cors.py`. Uma
+  origem nova de frontend precisa entrar em `cors_origins` (ou `CORS_ORIGINS` no Render).
+- `DATABASE_URL` aceita a string do Neon como vem (`postgresql://…`); o validator troca o
+  prefixo para `postgresql+psycopg://`. `TEST_DATABASE_URL` é opcional fora do pytest e
+  precisa ser um database separado terminado em `_test` (o conftest apaga o schema).

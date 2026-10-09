@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
 
-engine = create_engine(settings.database_url, future=True)
+# pool_pre_ping: o Neon suspende o banco apos 5 min parado e derruba as conexoes;
+# sem o ping, a primeira requisicao depois da pausa pegaria uma conexao morta (500).
+engine = create_engine(settings.database_url, future=True, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 
